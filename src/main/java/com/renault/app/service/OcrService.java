@@ -37,7 +37,7 @@ public class OcrService {
         tesseract = new Tesseract();
         tesseract.setDatapath(tessDataPath);
         tesseract.setLanguage("fra+eng");
-        tesseract.setPageSegMode(7);  // ✅ ligne entière au lieu d'un mot
+        tesseract.setPageSegMode(7);
         tesseract.setOcrEngineMode(1);
     }
 
@@ -52,9 +52,8 @@ public class OcrService {
                     new java.io.File("C:/Users/MSI/debug_plate.jpg"));
 
 // OCR sur image prétraitée
-            // ✅ NOUVEAU : adapter la langue selon le type
             if (expectedType == PlateType.TUNISIAN) {
-                tesseract.setLanguage("ara+fra+eng");  // ← après téléchargement ara
+                tesseract.setLanguage("ara+fra+eng");
             } else {
                 tesseract.setLanguage("fra+eng");
             }
@@ -85,7 +84,6 @@ public class OcrService {
         Mat image = Imgcodecs.imread(imagePath);
         if (image.empty()) throw new RuntimeException("Impossible de charger l'image");
 
-        // Redimensionner
         if (image.width() < 800) {
             Mat resized = new Mat();
             double scale = 1200.0 / image.width();
@@ -93,19 +91,17 @@ public class OcrService {
             image = resized;
         }
 
-        // Niveaux de gris
         Mat gray = new Mat();
         Imgproc.cvtColor(image, gray, Imgproc.COLOR_BGR2GRAY);
 
-        // ✅ INVERSER si fond noir
+
         Scalar meanVal = Core.mean(gray);
         System.out.println("Luminosité moyenne: " + meanVal.val[0]); // ← pour debug
         if (meanVal.val[0] < 127) {
             Core.bitwise_not(gray, gray);
         }
 
-        // Binarisation
-// ✅ Nouveau — seuillage simple + retourner gray directement
+
         Mat binary = new Mat();
         Imgproc.threshold(gray, binary, 0, 255,
                 Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
@@ -114,9 +110,9 @@ public class OcrService {
     }
 
     private PlateScanResult extractTunisianPlate(String rawText) {
-        // ✅ Supprimer tous les caractères parasites sauf chiffres et espaces
+
         String cleaned = rawText
-                .replaceAll("[\\[\\]\\n\\r]", " ")  // supprimer [], newlines
+                .replaceAll("[\\[\\]\\n\\r]", " ")
                 .replaceAll("\\s+", " ")
                 .trim();
 
@@ -134,14 +130,13 @@ public class OcrService {
                     .plateNumber(formatted)
                     .plateType(PlateType.TUNISIAN)
                     .regionCode("TN")
-                    .governorateCode("TN")  // ✅ correct
+                    .governorateCode("TN")
                     .build();
         }
         return PlateScanResult.empty();
     }
 
     private PlateScanResult extractForeignPlate(String rawText) {
-        // ✅ Nettoyage minimal pour garder la structure
         String cleaned = rawText.toUpperCase()
                 .replaceAll("[^A-Z0-9\\-\\s>|]", " ")
                 .replaceAll("\\s+", " ")
@@ -164,8 +159,8 @@ public class OcrService {
     }
 
     private String cleanText(String text) {
-        return text.toUpperCase()  // Mettre en MAJUSCULES d'abord
-                .replaceAll("[^A-Z0-9\\s-]", "")  // Garder lettres, chiffres, espaces, tirets
+        return text.toUpperCase()
+                .replaceAll("[^A-Z0-9\\s-]", "")
                 .replaceAll("\\s+", " ")
                 .trim();
     }
@@ -225,7 +220,7 @@ public class OcrService {
         public PlateScanResult regionCode(String r) { this.regionCode = r; return this; }
         public PlateScanResult governorateCode(String g) { this.governorateCode = g; return this; }
 
-        public PlateScanResult build() { return this; }  // ✅ AJOUTÉ
+        public PlateScanResult build() { return this; }
 
         public void setConfidence(double c) { this.confidence = c; }
         public void setRawText(String r) { this.rawText = r; }
