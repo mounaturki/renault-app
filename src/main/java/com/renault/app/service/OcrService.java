@@ -49,7 +49,7 @@ public class OcrService {
 // Preprocessing avec OpenCV
             BufferedImage preprocessed = preprocessImage(tempPath.toString());
             javax.imageio.ImageIO.write(preprocessed, "jpg",
-                    new java.io.File("C:/Users/MSI/debug_plate.jpg"));
+                    new java.io.File("C://Users//pc//debug_plate.jpeg/"));
 
 // OCR sur image prétraitée
             if (expectedType == PlateType.TUNISIAN) {
