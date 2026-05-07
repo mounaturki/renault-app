@@ -39,11 +39,22 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(auth -> auth
+                        // Auth OTP/JWT - public
                         .requestMatchers("/api/auth/**").permitAll()
+
+                        // OCR - public (ou authenticated selon vos besoins)
                         .requestMatchers("/api/ocr/**").permitAll()
+
+                        // H2 console (dev only)
                         .requestMatchers("/h2-console/**").permitAll()
+
+                        // Admin
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // Mécanicien
                         .requestMatchers("/api/mecanicien/**").hasAnyRole("ADMIN", "MECANICIEN")
+
+                        // Tout le reste nécessite auth
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
